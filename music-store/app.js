@@ -7,22 +7,24 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var catalog = require('./routes/catalog');
 
 var app = express();
 
-var MongoClient = require('mongodb').MongoClient
-  , assert = require('assert');
+//Import the mongoose module
+var mongoose = require('mongoose');
 
-// Connection URL
-var url = 'mongodb://localhost:27017/music-store';
-
-// Use connect method to connect to the server
-MongoClient.connect(url, function(err, db) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
-
-  db.close();
+//Set up default mongoose connection
+var mongoDB = 'mongodb://antor1553:543TWOone@ds161255.mlab.com:61255/local_library';
+mongoose.connect(mongoDB, {
+  useMongoClient: true
 });
+mongoose.Promise = global.Promise;
+//Get the default connection
+var db = mongoose.connection;
+
+//Bind connection to error event (to get notification of connection errors)
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -38,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/catalog', catalog);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
